@@ -1,5 +1,5 @@
 use std::error::Error;
-use std::fs::File;
+use std::fs::{self, File};
 use serde::Deserialize;
 
 const STEPS: u32 = 500;
@@ -41,37 +41,51 @@ fn normalize(data: &mut ndarray::Array1<f64>) -> (f64, f64) {
     (mean, std)
 }
 
-fn reshape(data: &ndarray::Array1<f64>) -> ndarray::Array2<f64> {
-    let n = data.len();
+fn add_bias(x: &ndarray::Array1<f64>) -> ndarray::Array2<f64> {
+    let n = x.len();
     let ones = ndarray::Array2::ones((n, 1));
-    let x = data.view().insert_axis(ndarray::Axis(1));
+    let x = x.view().insert_axis(ndarray::Axis(1));
     
     ndarray::concatenate(ndarray::Axis(1), &[ones.view(), x.view()]).unwrap()
 }
 
+fn model(x: &ndarray::Array2<f64>, thetas: &ndarray::Array1<f64>) -> ndarray::Array1<f64> {
+    x.dot(thetas)
+}
+
+fn cost(x: &ndarray::Array2<f64>, y: &ndarray::Array1<f64>, thetas: &ndarray::Array1<f64>) -> f64 {
+    let m = x.len() as f64;
+    let p = model(x, thetas);
+    let e = &p - y;
+    1. / (2. * m) * e.dot(&e)
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
-    
     let path = "data.csv";
+    let output = "thetas.csv";
+
     let (mut x, mut y) = load_data(path)?;
     let mut thetas = ndarray::Array1::zeros(2);
 
     let (mean_x, std_x) = normalize(&mut x);
     let (mean_y, std_y) = normalize(&mut y);
-    
-    let x = reshape(&x);
+
+    let x = add_bias(&x);
 
     for _ in 0 .. STEPS {
-        let predictions = x.dot(&thetas);
+        let predictions = model(&x, &thetas);
         let errors = &predictions - &y;
         let gradients = 1. / x.nrows() as f64 * x.t().dot(&errors);
         thetas = thetas - RATE * gradients;
+
+        let c = cost(&x, &y, &thetas);
+        println!("{}", c);
     }
 
     let theta1 = thetas[1] * (std_y / std_x);
     let theta0 =  (thetas[0] * std_y) + mean_y - theta1 * mean_x;
     
-    println!("{}", theta0);
-    println!("{}", theta1);
+    fs::write(output, format!("{}\n{}", theta0, theta1)).unwrap();
     
     Ok(())
 }

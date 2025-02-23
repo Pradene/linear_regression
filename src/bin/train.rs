@@ -1,7 +1,7 @@
 use std::error::Error;
 use ndarray::{Array1, Array2, Axis};
 
-use linear_regression::{model, load_data, save_thetas};
+use linear_regression::{load_data, save_thetas};
 
 const STEPS: u32 = 500;
 const RATE: f64 = 0.01;
@@ -25,7 +25,7 @@ fn add_bias(x: &Array1<f64>) -> Array2<f64> {
 
 fn cost(x: &Array2<f64>, y: &Array1<f64>, thetas: &Array1<f64>) -> f64 {
     let m = x.len() as f64;
-    let p = model(x, thetas);
+    let p = x.dot(thetas);
     let e = &p - y;
     1. / (2. * m) * e.dot(&e)
 }
@@ -33,7 +33,7 @@ fn cost(x: &Array2<f64>, y: &Array1<f64>, thetas: &Array1<f64>) -> f64 {
 fn gradient(x: &Array2<f64>, y: &Array1<f64>, thetas: &Array1<f64>) -> Array1<f64> {
     let m = x.nrows() as f64;
 
-    1. / m * x.t().dot(&(model(x, thetas) - y))
+    1. / m * x.t().dot(&(x.dot(thetas) - y))
 }
 
 fn main() -> Result<(), Box<dyn Error>> {

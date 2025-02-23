@@ -1,6 +1,6 @@
 use std::error::Error;
 use ndarray::{Array1, Array2, Axis};
-use linear_regression::{load_data, load_thetas, model};
+use linear_regression::{load_data, load_thetas};
 
 fn add_bias(x: &Array1<f64>) -> Array2<f64> {
     let n = x.len();
@@ -16,7 +16,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let x = add_bias(&x);
 
-    let p = model(&x, &thetas);
+    let p = x.dot(&thetas);
 
     let mut sum = 0.0;
     for (y, p) in y.iter().zip(p.iter()) {

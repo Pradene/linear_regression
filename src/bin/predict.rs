@@ -2,7 +2,7 @@ use std::error::Error;
 use std::io;
 use ndarray::{Array1, Axis};
 
-use linear_regression::{load_thetas, model};
+use linear_regression::load_thetas;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let thetas = load_thetas()?;
@@ -17,7 +17,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     match trimmed.parse::<f64>() {
         Ok(x) => {
             let x = Array1::from_vec(vec![1., x]).insert_axis(Axis(0));
-            println!("The estimated price of your car is : {}", model(&x, &thetas));
+            println!("The estimated price of your car is : {}", x.dot(&thetas));
         },
         Err(_) => println!("Invalid input! Not a valid number"),
     }

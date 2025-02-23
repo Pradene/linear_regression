@@ -1,4 +1,4 @@
-use ndarray::{Array1, Array2};
+use ndarray::Array1;
 use serde::Deserialize;
 use csv::{ReaderBuilder, WriterBuilder};
 use std::fs::File;
@@ -6,10 +6,6 @@ use std::error::Error;
 
 pub const DATA_FILE: &str = "data.csv";
 pub const THETAS_FILE: &str = "thetas.csv";
-
-pub fn model(x: &Array2<f64>, thetas: &Array1<f64>) -> Array1<f64> {
-    x.dot(thetas)
-}
 
 #[derive(Debug, Deserialize)]
 pub struct Record {
@@ -54,7 +50,7 @@ pub fn load_thetas() -> Result<Array1<f64>, Box<dyn Error>> {
         .from_path(THETAS_FILE)?;
 
     let record: Vec<f64> = match reader.deserialize().next() {
-        Some(result) => result?, // Handle potential deserialization errors
+        Some(result) => result?,
         None => return Err("CSV file is empty".into()),
     };
     

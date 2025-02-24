@@ -4,7 +4,7 @@ This project implements a simple linear regression model in Rust to predict outc
 
 ## Getting Started
 
-### Prereauisites
+### Prerequisites
 
 - [Rust](https://www.rust-lang.org/): Ensure you have Rust installed on your system. You can install it using [rustup](https://rustup.rs/).
 
